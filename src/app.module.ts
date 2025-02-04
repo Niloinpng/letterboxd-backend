@@ -1,8 +1,11 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule } from "@nestjs/config";
-import { ListModule } from "./list/list.module";
 import { UserModule } from "./user/user.module";
+import { DatabaseModule } from "./database/database.module";
+import { DatabaseService } from "./database/database.service";
+import { AppService } from "./app.service";
+import { AppController } from "./app.controller";
 
 @Module({
   imports: [
@@ -17,8 +20,10 @@ import { UserModule } from "./user/user.module";
       autoLoadEntities: true,
       synchronize: false, // Deixa falso para criar as tabelas via SQL
     }),
-    ListModule,
     UserModule,
+    DatabaseModule,
   ],
+  controllers: [AppController],
+  providers: [AppService, DatabaseService],
 })
 export class AppModule {}
