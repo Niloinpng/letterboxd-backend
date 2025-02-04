@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from "typeorm";
 import { User } from "src/user/user.entity";
 
 @Entity("list")
@@ -7,6 +13,7 @@ export class List {
   id: number;
 
   @ManyToOne(() => User, (user) => user.lists, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "user_id" }) // Define o nome correto da coluna no banco
   user: User;
 
   @Column()
