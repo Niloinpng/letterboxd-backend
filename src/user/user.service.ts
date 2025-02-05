@@ -17,7 +17,7 @@ export class UserService {
     const connection = this.databaseService.getConnection();
     const query = `
       SELECT * FROM User 
-      WHERE id = ? AND deleted_at IS NULL
+      WHERE id = ?
     `;
 
     const [users] = await connection.query(query, [id]);
@@ -35,7 +35,7 @@ export class UserService {
 
     // Check email availability
     const [emailResults] = await connection.query(
-      "SELECT id FROM User WHERE email = ? AND deleted_at IS NULL",
+      "SELECT id FROM User WHERE email = ?",
       [createUserDto.email],
     );
 
@@ -45,7 +45,7 @@ export class UserService {
 
     // Check username availability
     const [usernameResults] = await connection.query(
-      "SELECT id FROM User WHERE username = ? AND deleted_at IS NULL",
+      "SELECT id FROM User WHERE username = ?",
       [createUserDto.username],
     );
 
@@ -80,8 +80,7 @@ export class UserService {
     const connection = this.databaseService.getConnection();
     const query = `
       SELECT id, name, username, email, bio, profile_picture, created_at, updated_at 
-      FROM User 
-      WHERE deleted_at IS NULL
+      FROM User
     `;
 
     const [users] = await connection.query(query);
@@ -98,7 +97,7 @@ export class UserService {
     const connection = this.databaseService.getConnection();
     const query = `
       SELECT * FROM User 
-      WHERE email = ? AND deleted_at IS NULL
+      WHERE email = ?
     `;
 
     const [users] = await connection.query(query, [email]);
@@ -116,7 +115,7 @@ export class UserService {
     const connection = this.databaseService.getConnection();
     const query = `
       SELECT * FROM User 
-      WHERE username = ? AND deleted_at IS NULL
+      WHERE username = ?
     `;
 
     const [users] = await connection.query(query, [username]);
@@ -139,7 +138,7 @@ export class UserService {
     // If email is being updated, check availability
     if (updateUserDto.email) {
       const [emailResults] = await connection.query(
-        "SELECT id FROM User WHERE email = ? AND id != ? AND deleted_at IS NULL",
+        "SELECT id FROM User WHERE email = ? AND id != ?",
         [updateUserDto.email, id],
       );
 
@@ -151,7 +150,7 @@ export class UserService {
     // If username is being updated, check availability
     if (updateUserDto.username) {
       const [usernameResults] = await connection.query(
-        "SELECT id FROM User WHERE username = ? AND id != ? AND deleted_at IS NULL",
+        "SELECT id FROM User WHERE username = ? AND id != ?",
         [updateUserDto.username, id],
       );
 
@@ -167,8 +166,7 @@ export class UserService {
     for (const [key, value] of Object.entries(updateUserDto)) {
       if (value !== undefined) {
         if (key === "password") {
-          const salt = await bcrypt.genSalt();
-          const hashedPassword = await bcrypt.hash(value, salt);
+          const hashedPassword = await bcrypt.hash(value, 10);
           updates.push(`${key} = ?`);
           values.push(hashedPassword);
         } else {
@@ -185,25 +183,26 @@ export class UserService {
     const query = `
       UPDATE User 
       SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP
-      WHERE id = ? AND deleted_at IS NULL
+      WHERE id = ?
     `;
 
     await connection.query(query, [...values, id]);
     return this.getById(id);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number): Promise<string> {
     const connection = this.databaseService.getConnection();
 
     // Verify user exists
     await this.findOne(id);
 
     const query = `
-      UPDATE User 
-      SET deleted_at = CURRENT_TIMESTAMP
-      WHERE id = ? AND deleted_at IS NULL
+        DELETE FROM User
+        WHERE id = ?;
     `;
 
     await connection.query(query, [id]);
+
+    return "Usuário deletado com sucesso!";
   }
 }
