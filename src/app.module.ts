@@ -23,6 +23,7 @@ import { JwtModule } from "@nestjs/jwt";
     FollowModule,
     LikesModule,
     AuthModule,
+    ListModule,
     JwtModule,
   ],
   controllers: [AppController],
