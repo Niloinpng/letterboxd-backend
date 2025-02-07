@@ -6,9 +6,11 @@ import {
   Param,
   Body,
   HttpCode,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { LikesService } from "./likes.service";
 import { CreateLikeDto } from "./dto/create-like.dto";
+import { CurrentUser } from "src/auth/decorators/currentUser.decorator";
 
 @Controller("likes")
 export class LikesController {
@@ -21,7 +23,14 @@ export class LikesController {
 
   @Delete(":userId/:reviewId")
   @HttpCode(204)
-  remove(@Param("userId") userId: string, @Param("reviewId") reviewId: string) {
+  remove(
+    @Param("userId") userId: string,
+    @Param("reviewId") reviewId: string,
+    @CurrentUser("id") currentUserId: string,
+  ) {
+    if (userId !== currentUserId) {
+      throw new UnauthorizedException("You can't delete another user's likes.");
+    }
     return this.likeService.remove(+userId, +reviewId);
   }
 

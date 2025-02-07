@@ -7,12 +7,14 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { ApiTags } from "@nestjs/swagger";
 import { IUser } from "./interfaces/user.interface";
+import { CurrentUser } from "src/auth/decorators/currentUser.decorator";
 
 @ApiTags("users")
 @Controller("users")
@@ -48,12 +50,26 @@ export class UserController {
   async update(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser("id") userId: string,
   ): Promise<IUser> {
+    if (id !== +userId) {
+      throw new UnauthorizedException(
+        "You can't update another user's profile.",
+      );
+    }
     return this.userService.update(id, updateUserDto);
   }
 
   @Delete(":id")
-  async remove(@Param("id", ParseIntPipe) id: number): Promise<string> {
+  async remove(
+    @Param("id", ParseIntPipe) id: number,
+    @CurrentUser("id") userId: string,
+  ): Promise<string> {
+    if (id !== +userId) {
+      throw new UnauthorizedException(
+        "You can't delete another user's profile.",
+      );
+    }
     return this.userService.remove(id);
   }
 }

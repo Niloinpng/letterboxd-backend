@@ -8,6 +8,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import * as bcrypt from "bcrypt";
 import { IUser } from "./interfaces/user.interface";
+import { User } from "./entities/user.entity";
 
 @Injectable()
 export class UserService {
@@ -111,7 +112,8 @@ export class UserService {
     return userWithoutPassword;
   }
 
-  async getByUsername(username: string): Promise<IUser> {
+  // For authentication purposes
+  async getByUsername(username: string): Promise<User> {
     const connection = this.databaseService.getConnection();
     const query = `
       SELECT * FROM User 
@@ -125,8 +127,7 @@ export class UserService {
       throw new NotFoundException("User not found.");
     }
 
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    return user;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<IUser> {
