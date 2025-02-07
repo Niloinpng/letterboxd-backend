@@ -6,11 +6,13 @@ import {
   Param,
   Body,
   ParseIntPipe,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { FollowService } from "./follow.service";
 import { CreateFollowDto } from "./dto/create-follow.dto";
 import { Follow } from "./entities/follow.entity";
+import { CurrentUser } from "src/auth/decorators/currentUser.decorator";
 
 @ApiTags("follows")
 @Controller("follows")
@@ -26,7 +28,11 @@ export class FollowController {
   async unfollow(
     @Param("followerId", ParseIntPipe) followerId: number,
     @Param("followedId", ParseIntPipe) followedId: number,
+    @CurrentUser("id") currentUserId: string,
   ): Promise<void> {
+    if (followerId !== +currentUserId) {
+      throw new UnauthorizedException("You can't unfollow another user.");
+    }
     return this.followService.unfollow(followerId, followedId);
   }
 
