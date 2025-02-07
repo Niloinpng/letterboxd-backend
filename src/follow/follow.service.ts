@@ -142,7 +142,7 @@ export class FollowService {
     return feed as any[];
   }
 
-  //checks if a follow relationship exists between two users
+  //checks if a follow relationship exists between two users (probably not needed)
   async getFollowingStatus(
     followerId: number,
     followedId: number,
