@@ -1,7 +1,8 @@
-import { Controller, Get, Patch, Delete, Param, Body } from "@nestjs/common";
+import { Controller, Get, Post, Patch, Delete, Param, Body } from "@nestjs/common";
 import { MediaService } from "./media.service";
 import { IMedia } from "./interfaces/media.interface";
 import { UpdateMediaDto } from "./dto/update-media.dto";
+import { CreateMediaDto } from "./dto/create-media.dto";
 
 @Controller("media")
 export class MediaController {
@@ -17,11 +18,13 @@ export class MediaController {
     return this.mediaService.getByTitle(title);
   }
 
+  @Post()
+  async create(@Body() createMediaDto: CreateMediaDto): Promise<IMedia> {
+    return this.mediaService.create(createMediaDto);
+  }
+
   @Patch(":title")
-  async update(
-    @Param("title") title: string,
-    @Body() updateMediaDto: UpdateMediaDto,
-  ): Promise<IMedia> {
+  async update(@Param("title") title: string, @Body() updateMediaDto: UpdateMediaDto): Promise<IMedia> {
     return this.mediaService.update(title, updateMediaDto);
   }
 

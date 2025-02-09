@@ -22,16 +22,19 @@ import {
       `;
       
       const [mediaItems] = await connection.query(query, [title]);
-      const media = (mediaItems as any[])[0];
+      const media = (mediaItems as (IMedia & { average_rating?: number })[])[0];
   
       if (!media) {
         throw new NotFoundException("Media not found.");
       }
   
-      return media;
+      return {
+        ...media,
+        average_rating: media.average_rating ?? 0, // Garante que nunca será undefined
+      };
     }
   
-    async getAll(): Promise<IMedia[]> {
+    async getAll(): Promise<(IMedia & { average_rating: number })[]> {
       const connection = this.databaseService.getConnection();
       const query = `
         SELECT Media.*, COALESCE(AVG(Review.rating), 0) AS average_rating 
@@ -41,11 +44,33 @@ import {
       `;
       
       const [mediaItems] = await connection.query(query);
-      return mediaItems as IMedia[];
+      
+      return (mediaItems as (IMedia & { average_rating?: number })[]).map(media => ({
+        ...media,
+        average_rating: media.average_rating ?? 0, // Garante um número válido
+      }));
     }
   
     async getByTitle(title: string): Promise<IMedia & { average_rating: number }> {
       return this.findOne(title);
+    }
+  
+    async create(createMediaDto: CreateMediaDto): Promise<IMedia> {
+      const connection = this.databaseService.getConnection();
+      const query = `
+        INSERT INTO Media (title, type, description, release_date, cover_url) 
+        VALUES (?, ?, ?, ?, ?)
+      `;
+      const values = [
+        createMediaDto.title,
+        createMediaDto.type,
+        createMediaDto.description,
+        createMediaDto.release_date,
+        createMediaDto.cover_url,
+      ];
+      
+      await connection.query(query, values);
+      return this.getByTitle(createMediaDto.title);
     }
   
     async update(title: string, updateMediaDto: UpdateMediaDto): Promise<IMedia> {
