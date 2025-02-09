@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Patch, Delete, Param, Body } from "@nestjs/common";
 import { MediaService } from "./media.service";
 import { IMedia } from "./interfaces/media.interface";
-import { UpdateMediaDto } from "./dto/update-media.dto";
 import { CreateMediaDto } from "./dto/create-media.dto";
+import { UpdateMediaDto } from "./dto/update-media.dto";
 
 @Controller("media")
 export class MediaController {
@@ -13,9 +13,9 @@ export class MediaController {
     return this.mediaService.getAll();
   }
 
-  @Get(":title")
-  async getByTitle(@Param("title") title: string): Promise<IMedia> {
-    return this.mediaService.getByTitle(title);
+  @Get(":id")
+  async getById(@Param("id") id: number): Promise<IMedia> {
+    return this.mediaService.getById(id);
   }
 
   @Post()
@@ -23,13 +23,13 @@ export class MediaController {
     return this.mediaService.create(createMediaDto);
   }
 
-  @Patch(":title")
-  async update(@Param("title") title: string, @Body() updateMediaDto: UpdateMediaDto): Promise<IMedia> {
-    return this.mediaService.update(title, updateMediaDto);
+  @Patch(":id")
+  async update(@Param("id") id: number, @Body() updateMediaDto: UpdateMediaDto): Promise<IMedia> {
+    return this.mediaService.update(id, updateMediaDto);
   }
 
-  @Delete(":title")
-  async remove(@Param("title") title: string): Promise<string> {
-    return this.mediaService.remove(title);
+  @Delete(":id")
+  async remove(@Param("id") id: number): Promise<string> {
+    return this.mediaService.remove(id);
   }
 }

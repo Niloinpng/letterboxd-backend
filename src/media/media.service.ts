@@ -11,21 +11,21 @@ import {
   export class MediaService {
     constructor(private readonly databaseService: DatabaseService) {}
   
-    private async findOne(title: string): Promise<IMedia & { average_rating: number }> {
+    private async findOne(id: number): Promise<IMedia & { average_rating: number }> {
       const connection = this.databaseService.getConnection();
       const query = `
         SELECT Media.*, COALESCE(AVG(Review.rating), 0) AS average_rating 
         FROM Media 
         LEFT JOIN Review ON Media.id = Review.media_id 
-        WHERE Media.title = ?
+        WHERE Media.id = ?
         GROUP BY Media.id
       `;
       
-      const [mediaItems] = await connection.query(query, [title]);
+      const [mediaItems] = await connection.query(query, [id]);
       const media = (mediaItems as (IMedia & { average_rating?: number })[])[0];
   
       if (!media) {
-        throw new NotFoundException("Media not found.");
+        throw new NotFoundException("Media não encontrada.");
       }
   
       return {
@@ -51,8 +51,8 @@ import {
       }));
     }
   
-    async getByTitle(title: string): Promise<IMedia & { average_rating: number }> {
-      return this.findOne(title);
+    async getById(id: number): Promise<IMedia & { average_rating: number }> {
+      return this.findOne(id);
     }
   
     async create(createMediaDto: CreateMediaDto): Promise<IMedia> {
@@ -68,14 +68,15 @@ import {
         createMediaDto.release_date,
         createMediaDto.cover_url,
       ];
+  
+      const [result]: any = await connection.query(query, values);
       
-      await connection.query(query, values);
-      return this.getByTitle(createMediaDto.title);
+      return this.getById(result.insertId);
     }
   
-    async update(title: string, updateMediaDto: UpdateMediaDto): Promise<IMedia> {
+    async update(id: number, updateMediaDto: UpdateMediaDto): Promise<IMedia> {
       const connection = this.databaseService.getConnection();
-      await this.findOne(title);
+      await this.findOne(id);
   
       const updates: string[] = [];
       const values: any[] = [];
@@ -88,27 +89,26 @@ import {
       }
   
       if (updates.length === 0) {
-        return this.getByTitle(title);
+        return this.getById(id);
       }
   
       const query = `
         UPDATE Media 
         SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP
-        WHERE title = ?
+        WHERE id = ?
       `;
   
-      await connection.query(query, [...values, title]);
-      return this.getByTitle(title);
+      await connection.query(query, [...values, id]);
+      return this.getById(id);
     }
   
-    async remove(title: string): Promise<string> {
+    async remove(id: number): Promise<string> {
       const connection = this.databaseService.getConnection();
-      await this.findOne(title);
+      await this.findOne(id);
       
-      const query = `DELETE FROM Media WHERE title = ?`;
-      await connection.query(query, [title]);
+      const query = `DELETE FROM Media WHERE id = ?`;
+      await connection.query(query, [id]);
       
       return "Mídia deletada com sucesso!";
     }
   }
-  
