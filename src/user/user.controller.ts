@@ -15,6 +15,7 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { ApiTags } from "@nestjs/swagger";
 import { IUser } from "./interfaces/user.interface";
 import { CurrentUser } from "src/auth/decorators/currentUser.decorator";
+import { Public } from "src/auth/decorators/isPublic.decorator";
 
 @ApiTags("users")
 @Controller("users")
@@ -27,11 +28,13 @@ export class UserController {
   }
 
   @Get()
+  @Public()
   async getAll(): Promise<IUser[]> {
     return this.userService.getAll();
   }
 
   @Get(":id")
+  @Public()
   async getById(@Param("id", ParseIntPipe) id: number): Promise<IUser> {
     return this.userService.getById(id);
   }
