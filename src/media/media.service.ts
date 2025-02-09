@@ -86,4 +86,3 @@ import {
       return "Mídia deletada com sucesso!";
     }
   }
-  
