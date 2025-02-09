@@ -1,6 +1,5 @@
 import {
     IsDate,
-    IsEmail,
     IsNotEmpty,
     IsNumber,
     IsOptional,
@@ -21,7 +20,6 @@ import {
     type: string;
   
     @IsNotEmpty()
-    @IsEmail()
     description: string;
   
     @IsDate()
