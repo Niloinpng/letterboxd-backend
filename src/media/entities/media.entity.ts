@@ -21,8 +21,9 @@ import {
   
     @IsNotEmpty()
     description: string;
-  
-    @IsDate()
+    
+    @IsOptional()
+    @IsString()
     release_date: Date;
   
     @IsNotEmpty()
