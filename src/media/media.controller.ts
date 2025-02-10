@@ -3,6 +3,7 @@ import { MediaService } from "./media.service";
 import { IMedia } from "./interfaces/media.interface";
 import { CreateMediaDto } from "./dto/create-media.dto";
 import { UpdateMediaDto } from "./dto/update-media.dto";
+import { Public } from "src/auth/decorators/isPublic.decorator";
 
 @Controller("media")
 export class MediaController {
@@ -19,6 +20,7 @@ export class MediaController {
   }
 
   @Post()
+  @Public()
   async create(@Body() createMediaDto: CreateMediaDto): Promise<IMedia> {
     return this.mediaService.create(createMediaDto);
   }
