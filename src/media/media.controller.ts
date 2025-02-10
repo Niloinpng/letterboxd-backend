@@ -1,8 +1,22 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  UseInterceptors,
+  ParseIntPipe,
+  NotFoundException,
+  UploadedFile,
+} from "@nestjs/common";
 import { MediaService } from "./media.service";
 import { IMedia } from "./interfaces/media.interface";
 import { CreateMediaDto } from "./dto/create-media.dto";
 import { UpdateMediaDto } from "./dto/update-media.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { FileUploadDto } from "src/images/types/image.types";
 
 @Controller("media")
 export class MediaController {
@@ -24,12 +38,35 @@ export class MediaController {
   }
 
   @Patch(":id")
-  async update(@Param("id") id: number, @Body() updateMediaDto: UpdateMediaDto): Promise<IMedia> {
+  async update(
+    @Param("id") id: number,
+    @Body() updateMediaDto: UpdateMediaDto,
+  ): Promise<IMedia> {
     return this.mediaService.update(id, updateMediaDto);
   }
 
   @Delete(":id")
   async remove(@Param("id") id: number): Promise<string> {
     return this.mediaService.remove(id);
+  }
+
+  // Endpoint for uploading a cover image for a specific media item
+  @Post(":id/cover")
+  @UseInterceptors(FileInterceptor("cover"))
+  async uploadCoverImage(
+    @Param("id", ParseIntPipe) id: number,
+    @UploadedFile() file: FileUploadDto,
+  ) {
+    return this.mediaService.updateCoverImage(id, file);
+  }
+
+  // Endpoint for retrieving a cover image for a specific media item
+  @Get(":id/cover")
+  async getCoverImage(@Param("id", ParseIntPipe) id: number) {
+    const coverImage = await this.mediaService.getCoverImage(id);
+    if (!coverImage) {
+      throw new NotFoundException("Cover image not found");
+    }
+    return coverImage;
   }
 }
