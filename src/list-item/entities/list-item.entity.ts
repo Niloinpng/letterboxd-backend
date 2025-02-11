@@ -1,4 +1,4 @@
-import { IsDate, IsEnum, IsNotEmpty, IsNumber } from "class-validator";
+import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional } from "class-validator";
 
 export enum ListItemStatus {
   PENDENTE = "PENDENTE",
@@ -19,6 +19,7 @@ export class ListItem {
   media_id: number;
 
   @IsEnum(ListItemStatus)
+  @IsOptional()
   @IsNotEmpty()
   status: ListItemStatus;
 

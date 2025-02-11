@@ -4,6 +4,7 @@ import { CreateReviewDto } from "../review/dto/create-review.dto";
 import { UpdateReviewDto } from "../review/dto/update-review.dto";
 import { IReview } from "./interfaces/review.interface";
 import { IUserFeed } from "./interfaces/feed.interface";
+import { IUserReviewsFeed } from "./interfaces/user-reviews-feed";
 
 @Injectable()
 export class ReviewService {
@@ -78,5 +79,15 @@ export class ReviewService {
     const [results] = await connection.query("CALL sp_user_feed(?)", [userId]);
 
     return results[0] as IUserFeed[];
+  }
+
+  async getUserReviewsFeed(userId: number): Promise<IUserReviewsFeed[]> {
+    const connection = this.databaseService.getConnection();
+
+    const [results] = await connection.query("CALL sp_user_reviews_feed(?)", [
+      userId,
+    ]);
+
+    return results[0] as IUserReviewsFeed[];
   }
 }
