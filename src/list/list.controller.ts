@@ -21,6 +21,7 @@ export class ListController {
   constructor(private readonly listService: ListService) {}
 
   @Post()
+  @Public()
   async create(@Body() createListDto: CreateListDto): Promise<IList> {
     return this.listService.create(createListDto);
   }
@@ -46,6 +47,7 @@ export class ListController {
   }
 
   @Delete(":id")
+  @Public()
   async remove(@Param("id", ParseIntPipe) id: number): Promise<string> {
     return this.listService.remove(id);
   }

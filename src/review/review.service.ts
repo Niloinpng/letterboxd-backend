@@ -3,6 +3,7 @@ import { DatabaseService } from "../database/database.service";
 import { CreateReviewDto } from "../review/dto/create-review.dto";
 import { UpdateReviewDto } from "../review/dto/update-review.dto";
 import { IReview } from "./interfaces/review.interface";
+import { IUserFeed } from "./interfaces/feed.interface";
 
 @Injectable()
 export class ReviewService {
@@ -42,21 +43,21 @@ export class ReviewService {
   async update(id: number, updateReviewDto: UpdateReviewDto): Promise<IReview> {
     const connection = this.databaseService.getConnection();
     await this.getById(id);
-    
+
     const updates: string[] = [];
     const values: any[] = [];
-    
+
     for (const [key, value] of Object.entries(updateReviewDto)) {
       if (value !== undefined) {
         updates.push(`${key} = ?`);
         values.push(value);
       }
     }
-    
+
     if (updates.length === 0) {
       return this.getById(id);
     }
-    
+
     const query = `UPDATE Review SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
     await connection.query(query, [...values, id]);
     return this.getById(id);
@@ -68,5 +69,14 @@ export class ReviewService {
     const query = `DELETE FROM Review WHERE id = ?`;
     await connection.query(query, [id]);
     return "Review deleted successfully!";
+  }
+
+  async getUserFeed(userId: number): Promise<IUserFeed[]> {
+    const connection = this.databaseService.getConnection();
+
+    //chama a procedure armazenada no banco de dados, com o id do usuário como parâmetro
+    const [results] = await connection.query("CALL sp_user_feed(?)", [userId]);
+
+    return results[0] as IUserFeed[];
   }
 }
