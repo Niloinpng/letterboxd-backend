@@ -145,8 +145,7 @@ export class MediaService {
     const query = `
       SELECT cover_url 
       FROM Media 
-      WHERE id = ? 
-      AND deleted_at IS NULL
+      WHERE id = ?
     `;
 
     const [result] = await connection.query(query, [id]);
