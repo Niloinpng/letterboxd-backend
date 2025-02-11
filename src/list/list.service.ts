@@ -57,23 +57,6 @@ export class ListService {
     return this.findOne(id);
   }
 
-  async getByUserId(user_id: number): Promise<IList[]> {
-    const connection = this.databaseService.getConnection();
-    const query = `
-      SELECT id, user_id, name, description, created_at, updated_at 
-      FROM List
-      WHERE user_id = ?
-    `; // 🔹 Removido "deleted_at"
-
-    const [lists] = await connection.query(query, [user_id]);
-
-    if ((lists as any[]).length === 0) {
-      throw new NotFoundException("Nenhuma lista encontrada para este usuário.");
-    }
-
-    return lists as IList[];
-  }
-
   async update(id: number, updateListDto: UpdateListDto): Promise<IList> {
     const connection = this.databaseService.getConnection();
 
