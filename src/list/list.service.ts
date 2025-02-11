@@ -68,7 +68,9 @@ export class ListService {
     const [lists] = await connection.query(query, [user_id]);
 
     if ((lists as any[]).length === 0) {
-      throw new NotFoundException("Nenhuma lista encontrada para este usuário.");
+      throw new NotFoundException(
+        "Nenhuma lista encontrada para este usuário.",
+      );
     }
 
     return lists as IList[];
