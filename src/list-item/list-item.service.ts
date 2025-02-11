@@ -99,4 +99,18 @@ export class ListItemService {
 
     return "Item removido da lista com sucesso!";
   }
+
+  async getByListId(list_id: number): Promise<IListItem[]> {
+    const connection = this.databaseService.getConnection();
+    const query = `
+        SELECT id, list_id, media_id, status, created_at, updated_at
+        FROM List_Items
+        WHERE list_id = ?
+      `;
+    const [listItems] = await connection.query(query, [list_id]);
+    if ((listItems as any[]).length === 0) {
+      throw new NotFoundException("Nenhum item encontrado para esta lista.");
+    }
+    return listItems as IListItem[];
+  }
 }
