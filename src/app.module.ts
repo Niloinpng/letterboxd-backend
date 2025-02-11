@@ -15,6 +15,7 @@ import { APP_GUARD } from "@nestjs/core";
 import { AuthGuard } from "./auth/guards/auth.guard";
 import { JwtModule } from "@nestjs/jwt";
 import { ReviewModule } from "./review/review.module";
+import { CommentModule } from "./comment/comment.module";
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ReviewModule } from "./review/review.module";
     MediaModule,
     JwtModule,
     ReviewModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [
