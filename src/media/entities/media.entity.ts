@@ -23,6 +23,7 @@ import {
     description: string;
   
     @IsDate()
+    @IsOptional()
     release_date: Date;
   
     @IsNotEmpty()

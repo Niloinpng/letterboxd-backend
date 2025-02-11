@@ -24,11 +24,13 @@ export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
   @Get()
+  @Public()
   async getAll(): Promise<IMedia[]> {
     return this.mediaService.getAll();
   }
 
   @Get(":id")
+  @Public()
   async getById(@Param("id") id: number): Promise<IMedia> {
     return this.mediaService.getById(id);
   }
