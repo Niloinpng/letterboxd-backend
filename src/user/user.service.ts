@@ -11,6 +11,20 @@ import { IUser } from "./interfaces/user.interface";
 import { User } from "./entities/user.entity";
 import { ImageUtils } from "src/images/utils/image.utils";
 import { FileUploadDto } from "src/images/types/image.types";
+import { UserStatistics } from "./interfaces/user-statistics.interface";
+import { RowDataPacket } from "mysql2";
+
+interface UserStatisticsRow extends RowDataPacket {
+  user_id: number;
+  username: string;
+  total_reviews: number;
+  total_likes_given: number;
+  total_likes_received: number;
+  following_count: number;
+  followers_count: number;
+  average_rating: number | null;
+  total_lists: number;
+}
 
 @Injectable()
 export class UserService {
@@ -240,5 +254,31 @@ export class UserService {
     }
 
     return ImageUtils.bufferToBase64(user.profile_picture);
+  }
+
+  async getUserStatistics(userId: number): Promise<UserStatistics> {
+    const connection = this.databaseService.getConnection();
+
+    const query = `
+    SELECT * 
+    FROM vw_user_statistics 
+    WHERE user_id = ?
+    `;
+
+    // Tipando o resultado da query como um array de UserStatisticsRow
+    const [rows] = await connection.query<UserStatisticsRow[]>(query, [userId]);
+
+    // Verificando se temos resultados
+    if (!rows || rows.length === 0) {
+      throw new NotFoundException(
+        `Statistics for user with ID ${userId} not found`,
+      );
+    }
+
+    //o primeiro resultado já vem com os tipos corretos graças à interface
+    const userStats = rows[0];
+
+    // console.log(userStats);
+    return userStats;
   }
 }

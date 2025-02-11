@@ -20,6 +20,7 @@ import { CurrentUser } from "src/auth/decorators/currentUser.decorator";
 import { Public } from "src/auth/decorators/isPublic.decorator";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { FileUploadDto } from "src/images/types/image.types";
+import { UserStatistics } from "./interfaces/user-statistics.interface";
 
 @ApiTags("users")
 @Controller("users")
@@ -92,5 +93,18 @@ export class UserController {
   @Get(":id/profile-picture")
   async getProfilePicture(@Param("id") id: number) {
     return this.userService.getProfilePicture(id);
+  }
+
+  @Get(":id/statistics")
+  async getUserStatistics(
+    @Param("id", ParseIntPipe) id: number,
+    @CurrentUser("id") userId: string,
+  ): Promise<UserStatistics> {
+    if (id !== +userId) {
+      throw new UnauthorizedException(
+        "You can't view another user's statistics.",
+      );
+    }
+    return this.userService.getUserStatistics(id);
   }
 }
