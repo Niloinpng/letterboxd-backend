@@ -15,6 +15,7 @@ import { CreateReviewDto } from "./dto/create-review.dto";
 import { UpdateReviewDto } from "./dto/update-review.dto";
 import { CurrentUser } from "src/auth/decorators/currentUser.decorator";
 import { IUserFeed } from "./interfaces/feed.interface";
+import { IUserReviewsFeed } from "./interfaces/user-reviews-feed";
 
 @Controller("review")
 export class ReviewController {
@@ -57,5 +58,18 @@ export class ReviewController {
       throw new UnauthorizedException("You can't view another user's feed.");
     }
     return this.reviewService.getUserFeed(id);
+  }
+
+  @Get("user/:id/reviews-feed")
+  async getUserReviewsFeed(
+    @Param("id", ParseIntPipe) id: number,
+    @CurrentUser("id") userId: string,
+  ): Promise<IUserReviewsFeed[]> {
+    if (id !== +userId) {
+      throw new UnauthorizedException(
+        "You can't view another user's reviews feed.",
+      );
+    }
+    return this.reviewService.getUserReviewsFeed(id);
   }
 }
