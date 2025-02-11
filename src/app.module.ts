@@ -10,6 +10,7 @@ import { AppService } from "./app.service";
 import { AppController } from "./app.controller";
 import { FollowModule } from "./follow/follow.module";
 import { LikesModule } from "./likes/likes.module";
+import { ReviewModule } from "./review/review.module";
 import { AuthModule } from "./auth/auth.module";
 import { APP_GUARD } from "@nestjs/core";
 import { AuthGuard } from "./auth/guards/auth.guard";
@@ -29,6 +30,7 @@ import { JwtModule } from "@nestjs/jwt";
     ListItemModule,
     MediaModule,
     JwtModule,
+    ReviewModule,
   ],
   controllers: [AppController],
   providers: [
