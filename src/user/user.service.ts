@@ -9,6 +9,8 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import * as bcrypt from "bcrypt";
 import { IUser } from "./interfaces/user.interface";
 import { User } from "./entities/user.entity";
+import { ImageUtils } from "src/images/utils/image.utils";
+import { FileUploadDto } from "src/images/types/image.types";
 
 @Injectable()
 export class UserService {
@@ -205,5 +207,38 @@ export class UserService {
     await connection.query(query, [id]);
 
     return "Usuário deletado com sucesso!";
+  }
+
+  // Profile picture methods
+  async updateProfilePicture(id: number, file: FileUploadDto): Promise<void> {
+    const connection = this.databaseService.getConnection();
+    const imageBuffer = await ImageUtils.validateAndProcessImage(file);
+
+    const query = `
+      UPDATE User 
+      SET profile_picture = ?, 
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `;
+
+    await connection.query(query, [imageBuffer, id]);
+  }
+
+  async getProfilePicture(id: number): Promise<string | null> {
+    const connection = this.databaseService.getConnection();
+    const query = `
+      SELECT profile_picture 
+      FROM User 
+      WHERE id = ?
+    `;
+
+    const [result] = await connection.query(query, [id]);
+    const user = (result as any[])[0];
+
+    if (!user || !user.profile_picture) {
+      return null;
+    }
+
+    return ImageUtils.bufferToBase64(user.profile_picture);
   }
 }

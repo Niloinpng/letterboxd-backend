@@ -2,6 +2,8 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { UserModule } from "./user/user.module";
 import { ListModule } from "./list/list.module";
+import { ListItemModule } from "./list-item/list-item.module";
+import { MediaModule } from "./media/media.module";
 import { DatabaseModule } from "./database/database.module";
 import { DatabaseService } from "./database/database.service";
 import { AppService } from "./app.service";
@@ -25,6 +27,8 @@ import { CommentModule } from './comment/comment.module';
     LikesModule,
     AuthModule,
     ListModule,
+    ListItemModule,
+    MediaModule,
     JwtModule,
     CommentModule,
   ],
