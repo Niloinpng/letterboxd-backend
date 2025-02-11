@@ -12,7 +12,7 @@ export class CommentService {
   async create(createCommentDto: CreateCommentDto): Promise<Comment> {
     const connection = this.databaseService.getConnection();
     const query = `
-      INSERT INTO Comment (user_id, post_id, content)
+      INSERT INTO Comment (user_id, review_id, content)
       VALUES (?, ?, ?)
     `;
 
