@@ -4,7 +4,6 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  MinLength,
 } from "class-validator";
 import { Transform } from "class-transformer";
 
@@ -23,6 +22,7 @@ export class Media {
   @IsNotEmpty()
   description: string;
 
+  @IsOptional()
   @IsDate()
   @Transform(({ value }) => new Date(value)) // validator
   release_date: Date;

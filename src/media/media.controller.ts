@@ -18,15 +18,25 @@ import { UpdateMediaDto } from "./dto/update-media.dto";
 import { Public } from "src/auth/decorators/isPublic.decorator";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { FileUploadDto } from "src/images/types/image.types";
+import { CreateMediaWithTagsDto } from "./dto/create-media-with-tags.dto";
 
 @Controller("media")
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
-  @Get()
-  @Public()
-  async getAll(): Promise<IMedia[]> {
-    return this.mediaService.getAll();
+  @Get("tags")
+  async getAllTags() {
+    return this.mediaService.getAllTags();
+  }
+
+  @Get("with-tags")
+  async getAllWithTags() {
+    return this.mediaService.getAllMediaWithTags();
+  }
+
+  @Get("with-tags/:id")
+  async getOneWithTags(@Param("id") id: number) {
+    return this.mediaService.getMediaWithTags(id);
   }
 
   @Get(":id")
@@ -35,10 +45,21 @@ export class MediaController {
     return this.mediaService.getById(id);
   }
 
+  @Get()
+  @Public()
+  async getAll(): Promise<IMedia[]> {
+    return this.mediaService.getAll();
+  }
+
   @Post()
   @Public()
   async create(@Body() createMediaDto: CreateMediaDto): Promise<IMedia> {
     return this.mediaService.create(createMediaDto);
+  }
+
+  @Post("with-tags")
+  async createWithTags(@Body() createDto: CreateMediaWithTagsDto) {
+    return this.mediaService.createMediaWithTagsAndList(createDto);
   }
 
   @Patch(":id")
