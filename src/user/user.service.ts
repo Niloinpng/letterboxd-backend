@@ -9,6 +9,22 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import * as bcrypt from "bcrypt";
 import { IUser } from "./interfaces/user.interface";
 import { User } from "./entities/user.entity";
+import { ImageUtils } from "src/images/utils/image.utils";
+import { FileUploadDto } from "src/images/types/image.types";
+import { UserStatistics } from "./interfaces/user-statistics.interface";
+import { RowDataPacket } from "mysql2";
+
+interface UserStatisticsRow extends RowDataPacket {
+  user_id: number;
+  username: string;
+  total_reviews: number;
+  total_likes_given: number;
+  total_likes_received: number;
+  following_count: number;
+  followers_count: number;
+  average_rating: number | null;
+  total_lists: number;
+}
 
 @Injectable()
 export class UserService {
@@ -205,5 +221,64 @@ export class UserService {
     await connection.query(query, [id]);
 
     return "Usuário deletado com sucesso!";
+  }
+
+  // Profile picture methods
+  async updateProfilePicture(id: number, file: FileUploadDto): Promise<void> {
+    const connection = this.databaseService.getConnection();
+    const imageBuffer = await ImageUtils.validateAndProcessImage(file);
+
+    const query = `
+      UPDATE User 
+      SET profile_picture = ?, 
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `;
+
+    await connection.query(query, [imageBuffer, id]);
+  }
+
+  async getProfilePicture(id: number): Promise<string | null> {
+    const connection = this.databaseService.getConnection();
+    const query = `
+      SELECT profile_picture 
+      FROM User 
+      WHERE id = ?
+    `;
+
+    const [result] = await connection.query(query, [id]);
+    const user = (result as any[])[0];
+
+    if (!user || !user.profile_picture) {
+      return null;
+    }
+
+    return ImageUtils.bufferToBase64(user.profile_picture);
+  }
+
+  async getUserStatistics(userId: number): Promise<UserStatistics> {
+    const connection = this.databaseService.getConnection();
+
+    const query = `
+    SELECT * 
+    FROM vw_user_statistics 
+    WHERE user_id = ?
+    `;
+
+    // Tipando o resultado da query como um array de UserStatisticsRow
+    const [rows] = await connection.query<UserStatisticsRow[]>(query, [userId]);
+
+    // Verificando se temos resultados
+    if (!rows || rows.length === 0) {
+      throw new NotFoundException(
+        `Statistics for user with ID ${userId} not found`,
+      );
+    }
+
+    //o primeiro resultado já vem com os tipos corretos graças à interface
+    const userStats = rows[0];
+
+    // console.log(userStats);
+    return userStats;
   }
 }
